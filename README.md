@@ -1,2 +1,2 @@
 # stmv
-Simulador de Tráfego em Malha Viária
+Simulador de Tráfego Viário
