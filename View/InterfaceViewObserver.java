@@ -7,5 +7,9 @@ package View;
  */
 public interface InterfaceViewObserver {
     
-    public void update(Object object);
+    public void updateTableChanged();
+    
+    public void updateTableModel(TableModelMalhaRodoviaria tableModelMalhaRodiviaria);
+    
+    public void updateShowException(Exception exception);
 }

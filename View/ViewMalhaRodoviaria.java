@@ -23,6 +23,11 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static javax.swing.LayoutStyle.ComponentPlacement.RELATED;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import javafx.stage.FileChooser;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  * View principal da sistema
@@ -54,7 +59,8 @@ public class ViewMalhaRodoviaria extends JFrame implements InterfaceViewObserver
         this.controller = controller;
         this.controller.addObserver(this);
         
-        initComponents();
+        this.initComponents();
+        this.addListerners();
     }
     
     /**
@@ -71,15 +77,12 @@ public class ViewMalhaRodoviaria extends JFrame implements InterfaceViewObserver
         this.itemMenuSair          = new JMenuItem();
         this.menuSobre             = new JMenu();
         this.tableMalhaRodoviaria  = new JTable();
-        this.tableModel            = new TableModelMalhaRodoviaria();
         
         super.setDefaultCloseOperation(EXIT_ON_CLOSE);
         super.setResizable(false);
         
         this.panelTable.setMinimumSize(new Dimension(600, 400));
         this.panelTable.setPreferredSize(new Dimension(600, 400));
-        
-        this.tableMalhaRodoviaria.setModel(this.tableModel);
         
         this.botaoStop.setIcon(new ImageIcon(getClass().getResource("/View/Icons/error.png")));
         this.botaoStop.setText("Stop");
@@ -148,15 +151,39 @@ public class ViewMalhaRodoviaria extends JFrame implements InterfaceViewObserver
      * @todo
      */
     private void addListerners() {
-        
+        this.itemMenuCarregarMalha.addActionListener((ActionEvent e) -> {
+            this.controller.carregaMatrizRodoviaria(this.callFileChooser());
+        });
     }
     
     /**
      * Implementa o update do Observer
-     * @param object 
      */
     @Override
-    public void update(Object object) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void updateTableChanged() {
+        this.tableModel.fireTableDataChanged();
+    }
+
+    @Override
+    public void updateTableModel(TableModelMalhaRodoviaria tableModelMalhaRodiviaria) {
+        this.tableModel = tableModelMalhaRodiviaria;
+        
+        this.tableMalhaRodoviaria.setModel(this.tableModel);
+    }
+
+    @Override
+    public void updateShowException(Exception exception) {
+        JOptionPane.showMessageDialog(this, exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    public File callFileChooser() {
+        JFileChooser fileChooser = new JFileChooser();
+        File file                = null;
+        
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            file = fileChooser.getSelectedFile();
+        }
+        
+        return file;
     }
 }
