@@ -1,6 +1,7 @@
 package Model;
 
 import java.awt.Color;
+import javax.swing.ImageIcon;
 
 /**
  * Classe modelo da Pista
@@ -9,9 +10,18 @@ import java.awt.Color;
  */
 public class Pista {
     
+    public static final String IMAGEM_ACIMA    = "/View/Icons/acima.png";
+    public static final String IMAGEM_ABAIXO   = "/View/Icons/abaixo.png";
+    public static final String IMAGEM_DIREITA  = "/View/Icons/direita.png";
+    public static final String IMAGEM_ESQUERDA = "/View/Icons/esquerda.png";
+    
     private int id;
     
-    private boolean isTransitavel;
+    private boolean transitavel;
+    
+    private boolean saida;
+    
+    private boolean entrada;
     
     private Pista pistaEsquerda; 
     
@@ -21,8 +31,18 @@ public class Pista {
     
     private Pista pistaInferior; 
     
+    private Carro carro;
+    
     private Color cor;
+    
+    private ImageIcon icone;
 
+    public Pista() {}
+
+    public Pista(Color cor) {
+        this.cor = cor;
+    }
+    
     public int getId() {
         return id;
     }
@@ -31,14 +51,30 @@ public class Pista {
         this.id = id;
     }
 
-    public boolean isIsTransitavel() {
-        return isTransitavel;
+    public boolean isTransitavel() {
+        return transitavel;
     }
 
-    public void setIsTransitavel(boolean isTransitavel) {
-        this.isTransitavel = isTransitavel;
+    public void setTransitavel(boolean transitavel) {
+        this.transitavel = transitavel;
     }
 
+    public boolean isSaida() {
+        return saida;
+    }
+
+    public void setSaida(boolean saida) {
+        this.saida = saida;
+    }
+
+    public boolean isEntrada() {
+        return entrada;
+    }
+
+    public void setEntrada(boolean entrada) {
+        this.entrada = entrada;
+    }    
+    
     public Pista getPistaEsquerda() {
         return pistaEsquerda;
     }
@@ -71,6 +107,14 @@ public class Pista {
         this.pistaInferior = pistaInferior;
     }
 
+    public Carro getCarro() {
+        return carro;
+    }
+
+    public void setCarro(Carro carro) {
+        this.carro = carro;
+    }
+    
     public Color getCor() {
         return cor;
     }
@@ -78,4 +122,12 @@ public class Pista {
     public void setCor(Color cor) {
         this.cor = cor;
     }    
+
+    public ImageIcon getIcone() {
+        return icone;
+    }
+
+    public void setIcone(ImageIcon icone) {
+        this.icone = icone;
+    }
 }
