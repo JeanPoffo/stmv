@@ -14,14 +14,13 @@ public class Main {
     
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        ControllerMalhaRodoviaria controllerSistema = new ControllerMalhaRodoviaria();
-        ViewMalhaRodoviaria       viewSistema       = new ViewMalhaRodoviaria(controllerSistema);
-        
+        ControllerMalhaRodoviaria controllerSistema = ControllerMalhaRodoviaria.getInstancia();
+        ViewMalhaRodoviaria viewSistema = new ViewMalhaRodoviaria(controllerSistema);
         viewSistema.setVisible(true);
     }
 }

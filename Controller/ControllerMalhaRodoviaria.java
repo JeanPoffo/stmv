@@ -1,5 +1,6 @@
 package Controller;
 
+import Model.Carro;
 import Model.Pista;
 import View.InterfaceViewObserver;
 import View.TableModelMalhaRodoviaria;
@@ -20,11 +21,15 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
 
     private Pista[][] matrizRodoviaria;
     
-    private ArrayList<Pista> pistasEntrada;
+    private List<Pista> pistasEntrada;
     
     private List<InterfaceViewObserver> observers;
 
-    public ControllerMalhaRodoviaria() {
+    private List<Carro> carros;
+    
+    private static ControllerMalhaRodoviaria instancia;
+    
+    private ControllerMalhaRodoviaria() {
         this.observers = new ArrayList();
     }
     
@@ -38,6 +43,14 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
         this.observers.remove(observer);
     }
 
+    public static ControllerMalhaRodoviaria getInstancia() {
+        if(instancia == null) {
+            instancia = new ControllerMalhaRodoviaria();
+        }
+        
+        return instancia;
+    }
+    
     /**
      * 
      * @param exception 
@@ -58,17 +71,35 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
         }
     }
     
+    public synchronized void notifyTableModelChanged() {
+        for (InterfaceViewObserver observer : this.observers) {
+            observer.updateTableChanged();
+        }
+    }
+    
     @Override
     public Pista[][] getMatrizRodoviaria() {
         return this.matrizRodoviaria;
     }
 
-    public ArrayList<Pista> getPistasEntrada() {
+    public List<Pista> getPistasEntrada() {
         return pistasEntrada;
     }
 
     public void addPistasEntrada(Pista pista) {
         this.pistasEntrada.add(pista);
+    }
+
+    public List<Carro> getCarros() {
+        return carros;
+    }
+
+    public void addCarro(Carro carro) {
+        this.carros.add(carro);
+    }
+    
+    private boolean verificaIndiceExisteArray(int x, int y) {
+        return (x >= 0 && x < this.matrizRodoviaria.length) && (y >= 0 && y < this.matrizRodoviaria[0].length);
     }
     
     /**
@@ -88,7 +119,7 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
             
             this.matrizRodoviaria = new Pista[linhas][colunas];
             
-            this.carregaPistaMatriz();
+            this.carregaMatrizModelPistas();
             
             while(scanner.hasNext()) {
                 int inicioX = scanner.nextInt();
@@ -96,7 +127,7 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
                 int fimX    = scanner.nextInt();
                 int fimY    = scanner.nextInt();
                 
-                this.carregaPistaMatrizTransitavel(inicioX, inicioY, fimX, fimY);
+                this.carregaMatrizModelPistasTransitavel(inicioX, inicioY, fimX, fimY);
             }
             
             this.notifyTableModel(new TableModelMalhaRodoviaria(this));
@@ -106,7 +137,7 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
         }
     }
     
-    private void carregaPistaMatriz() {
+    private void carregaMatrizModelPistas() {
         /** Preenche a malha com as Pistas */
         for (int x = 0; x < matrizRodoviaria.length; x++) {
             for (int y = 0; y < matrizRodoviaria[x].length; y++) {
@@ -138,12 +169,7 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
         }
     }
     
-    private boolean verificaIndiceExisteArray(int x, int y) {
-        return this.matrizRodoviaria.length <= x && this.matrizRodoviaria[0].length <= y;
-    }
-    
-    private void carregaPistaMatrizTransitavel(int inicioX, int inicioY, int fimX, int fimY) throws ArrayIndexOutOfBoundsException {
-        
+    private void carregaMatrizModelPistasTransitavel(int inicioX, int inicioY, int fimX, int fimY) throws ArrayIndexOutOfBoundsException {
         Pista ultimaPista = new Pista();
         
         if (inicioY == fimY) {    
@@ -171,6 +197,7 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
             if((fimX + 1) == matrizRodoviaria.length || fimX == 0) {
                 //Vermelho
                 ultimaPista.setCor(new Color(255, 0, 0));
+                ultimaPista.setSaida(true);
             }
         } 
         else {
@@ -198,7 +225,29 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
             if((fimY + 1) == matrizRodoviaria.length || fimY == 0) {
                 //Vermelho
                 ultimaPista.setCor(new Color(255, 0, 0));
+                ultimaPista.setSaida(true);
             }
         }
+    }
+    
+    /** @todo */
+    private void carregaModelPistasEntrada() {
+        
+    }
+
+    @Override
+    public void iniciaSimulacao() {
+        Carro carro = new Carro();
+        
+        Pista pista = this.matrizRodoviaria[5][0];
+        
+        pista.setCarro(carro);
+        carro.setPista(pista);
+        
+        this.notifyTableModelChanged();
+        
+        new Thread(() -> {
+            carro.start();
+        }).start();
     }
 }

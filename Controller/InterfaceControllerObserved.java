@@ -18,4 +18,6 @@ public interface InterfaceControllerObserved {
     public Pista[][] getMatrizRodoviaria();
     
     public void carregaMatrizRodoviaria(File arquivoImportacao);
+    
+    public void iniciaSimulacao();
 }
