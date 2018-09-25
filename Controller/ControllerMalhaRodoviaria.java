@@ -9,7 +9,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 
 /**
@@ -21,16 +24,18 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
 
     private Pista[][] matrizRodoviaria;
     
-    private List<Pista> pistasEntrada;
+    private ArrayList<Pista> pistasEntrada;
+
+    private ArrayList<Carro> carros;
     
     private List<InterfaceViewObserver> observers;
-
-    private List<Carro> carros;
     
     private static ControllerMalhaRodoviaria instancia;
     
     private ControllerMalhaRodoviaria() {
-        this.observers = new ArrayList();
+        this.observers     = new ArrayList();
+        this.carros        = new ArrayList();
+        this.pistasEntrada = new ArrayList();
     }
     
     @Override
@@ -96,10 +101,6 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
 
     public void addCarro(Carro carro) {
         this.carros.add(carro);
-    }
-    
-    private boolean verificaIndiceExisteArray(int x, int y) {
-        return (x >= 0 && x < this.matrizRodoviaria.length) && (y >= 0 && y < this.matrizRodoviaria[0].length);
     }
     
     /**
@@ -169,85 +170,190 @@ public class ControllerMalhaRodoviaria implements InterfaceControllerObserved {
         }
     }
     
+    private boolean verificaIndiceExisteArray(int x, int y) {
+        return (x >= 0 && x < this.matrizRodoviaria.length) && (y >= 0 && y < this.matrizRodoviaria[0].length);
+    }
+    
     private void carregaMatrizModelPistasTransitavel(int inicioX, int inicioY, int fimX, int fimY) throws ArrayIndexOutOfBoundsException {
-        Pista ultimaPista = new Pista();
+        Pista pista = null;
         
-        if (inicioY == fimY) {    
+        boolean temEntradaX = false;
+        boolean temEntradaY = false;
+        boolean temSaidaX   = false;
+        boolean temSaidaY   = false;
+        
+        if(inicioY == (this.matrizRodoviaria[0].length - 1) || inicioY == 0) {
+            temEntradaY = true;
+        }
+        
+        if(fimY == (this.matrizRodoviaria[0].length - 1) || fimY == 0) {
+            temSaidaY = true;
+        }
+        
+        if(inicioX == (this.matrizRodoviaria.length - 1) || inicioX == 0) {
+            temEntradaX = true;
+        }
+        if(fimX == (this.matrizRodoviaria.length - 1) || fimX == 0) {
+            temSaidaX = true;
+        }
+        
+        if (inicioY == fimY) {
             if (inicioX < fimX) {
+                if(temEntradaX) {
+                    pista = matrizRodoviaria[fimY][inicioX];
+                    pista.setEntrada(true);
+                    this.addPistasEntrada(pista);
+                }
+                
                 for (int i = inicioX; i <= fimX; i++) {
-                    Pista pista = matrizRodoviaria[fimY][i];
+                    pista = matrizRodoviaria[fimY][i];
                     pista.setIcone(new ImageIcon(getClass().getResource(Pista.IMAGEM_DIREITA)));
                     pista.setTransitavel(true);
+                    
+                    if(i != inicioX) {
+                        pista.setPistaEsquerda(null);
+                    }
+                    
+                    if (i == fimX) {
+                        if(this.verificaIndiceExisteArray(i + 1, fimY)) {
+                            Pista pistaAdjacente = matrizRodoviaria[fimY][i + 1];
+                            pistaAdjacente.setPistaEsquerda(null);
+                        }
+                    }
+                    
                     pista.setCor(new Color(146, 143, 138));
-
-                    ultimaPista = pista;
+                }
+                
+                if(temSaidaX) {
+                    pista.setCor(new Color(255, 0, 0));
+                    pista.setSaida(true);
                 }
             } 
             else {
+                if(temEntradaX) {
+                    pista = matrizRodoviaria[fimY][inicioX];
+                    pista.setEntrada(true);
+                    this.addPistasEntrada(pista);
+                }
+                
                 for (int i = inicioX; i >= fimX; i--) {
-                    Pista pista = matrizRodoviaria[fimY][i];
+                    pista = matrizRodoviaria[fimY][i];
                     pista.setIcone(new ImageIcon(getClass().getResource(Pista.IMAGEM_ESQUERDA)));
                     pista.setTransitavel(true);
-                    pista.setCor(new Color(146, 143, 138));
                     
-                    ultimaPista = pista;
+                    if(i != inicioY) {
+                        pista.setPistaDireita(null);
+                    } 
+                    
+                    if (i == fimX) {
+                        if(this.verificaIndiceExisteArray(i + 1, fimY)) {
+                            Pista pistaAdjacente = matrizRodoviaria[fimY][i + 1];
+                            pistaAdjacente.setPistaDireita(null);
+                        }
+                    }
+                    
+                    pista.setCor(new Color(146, 143, 138));
                 }
-            }
-            
-            if((fimX + 1) == matrizRodoviaria.length || fimX == 0) {
-                //Vermelho
-                ultimaPista.setCor(new Color(255, 0, 0));
-                ultimaPista.setSaida(true);
+                
+                if(temSaidaX) {
+                    pista.setCor(new Color(255, 0, 0));
+                    pista.setSaida(true);
+                }
             }
         } 
         else {
             if (inicioY < fimY) {
+                if(temEntradaY) {
+                    pista = matrizRodoviaria[inicioY][fimX];
+                    pista.setEntrada(true);
+                    this.addPistasEntrada(pista);
+                }
+                
                 for (int i = inicioY; i <= fimY; i++) {
-                    Pista pista = matrizRodoviaria[i][fimX];
+                    pista = matrizRodoviaria[i][fimX];
                     pista.setIcone(new ImageIcon(getClass().getResource(Pista.IMAGEM_ABAIXO)));
                     pista.setTransitavel(true);
-                    pista.setCor(new Color(146, 143, 138));
                     
-                    ultimaPista = pista;
+                    if(i != inicioY) {
+                        pista.setPistaSuperior(null);
+                    }
+                    
+                    if (i == fimY) {
+                        if(this.verificaIndiceExisteArray(fimX, i + 1)) {
+                            Pista pistaAdjacente = matrizRodoviaria[i + 1][fimX];
+                            pistaAdjacente.setPistaSuperior(null);
+                        }
+                    }
+                    
+                    pista.setCor(new Color(146, 143, 138));
+                }
+                
+                if(temSaidaY) {
+                    pista.setCor(new Color(255, 0, 0));
+                    pista.setSaida(true);
                 }
             } 
             else {
+                if(temEntradaX) {
+                    pista = matrizRodoviaria[inicioY][fimX];
+                    pista.setEntrada(true);
+                    this.addPistasEntrada(pista);
+                }
+                
                 for (int i = inicioY; i >= fimY; i--) {
-                    Pista pista = matrizRodoviaria[i][fimX];
+                    pista = matrizRodoviaria[i][fimX];
                     pista.setIcone(new ImageIcon(getClass().getResource(Pista.IMAGEM_ACIMA)));
                     pista.setTransitavel(true);
-                    pista.setCor(new Color(146, 143, 138));
                     
-                    ultimaPista = pista;
+                    if(i != inicioY) {
+                        pista.setPistaInferior(null);
+                    }
+                    
+                    if (i == fimY) {
+                        if(this.verificaIndiceExisteArray(fimX, i + 1)) {
+                            Pista pistaAdjacente = matrizRodoviaria[i + 1][fimX];
+                            pistaAdjacente.setPistaInferior(null);
+                        }
+                    }
+                    
+                    pista.setCor(new Color(146, 143, 138));
                 }
-            }
-            
-            if((fimY + 1) == matrizRodoviaria.length || fimY == 0) {
-                //Vermelho
-                ultimaPista.setCor(new Color(255, 0, 0));
-                ultimaPista.setSaida(true);
+                
+                if(temSaidaY) {
+                    pista.setCor(new Color(255, 0, 0));
+                    pista.setEntrada(true);
+                }
             }
         }
     }
-    
-    /** @todo */
-    private void carregaModelPistasEntrada() {
-        
-    }
 
     @Override
-    public void iniciaSimulacao() {
-        Carro carro = new Carro();
-        
-        Pista pista = this.matrizRodoviaria[5][0];
-        
-        pista.setCarro(carro);
-        carro.setPista(pista);
-        
-        this.notifyTableModelChanged();
-        
+    public void iniciaSimulacao(int quantidadeCarro, boolean usaSemafaro, boolean usaMonitor) {
         new Thread(() -> {
-            carro.start();
+            Random random = new Random();
+            
+            while(this.carros.size() < quantidadeCarro) {
+                Pista pista = this.pistasEntrada.get(random.nextInt(this.pistasEntrada.size()));
+
+                Carro carro = new Carro();
+                
+                this.addCarro(carro);
+                
+                pista.setCarro(carro);
+                carro.setPista(pista);
+                
+                this.notifyTableModelChanged();
+                
+                new Thread(() -> {
+                    carro.start();
+                }).start();
+                
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ControllerMalhaRodoviaria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }).start();
     }
 }

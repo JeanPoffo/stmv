@@ -62,6 +62,7 @@ public class ViewMalhaRodoviaria extends javax.swing.JFrame implements Interface
         opcaoMonitor.setText("Monitor");
         opcaoMonitor.addActionListener(formListener);
 
+        opcaoSemaforo.setSelected(true);
         opcaoSemaforo.setText("Semafaro");
         opcaoSemaforo.addActionListener(formListener);
 
@@ -191,14 +192,14 @@ public class ViewMalhaRodoviaria extends javax.swing.JFrame implements Interface
     private class FormListener implements java.awt.event.ActionListener {
         FormListener() {}
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            if (evt.getSource() == itemMenuSair) {
-                ViewMalhaRodoviaria.this.itemMenuSairActionPerformed(evt);
+            if (evt.getSource() == opcaoMonitor) {
+                ViewMalhaRodoviaria.this.opcaoMonitorActionPerformed(evt);
             }
             else if (evt.getSource() == opcaoSemaforo) {
                 ViewMalhaRodoviaria.this.opcaoSemaforoActionPerformed(evt);
             }
-            else if (evt.getSource() == opcaoMonitor) {
-                ViewMalhaRodoviaria.this.opcaoMonitorActionPerformed(evt);
+            else if (evt.getSource() == botaoIniciar) {
+                ViewMalhaRodoviaria.this.botaoIniciarActionPerformed(evt);
             }
             else if (evt.getSource() == botaoPararAgora) {
                 ViewMalhaRodoviaria.this.botaoPararAgoraActionPerformed(evt);
@@ -206,11 +207,11 @@ public class ViewMalhaRodoviaria extends javax.swing.JFrame implements Interface
             else if (evt.getSource() == botaoParar) {
                 ViewMalhaRodoviaria.this.botaoPararActionPerformed(evt);
             }
-            else if (evt.getSource() == botaoIniciar) {
-                ViewMalhaRodoviaria.this.botaoIniciarActionPerformed(evt);
-            }
             else if (evt.getSource() == itemMenuNovo) {
                 ViewMalhaRodoviaria.this.itemMenuNovoActionPerformed(evt);
+            }
+            else if (evt.getSource() == itemMenuSair) {
+                ViewMalhaRodoviaria.this.itemMenuSairActionPerformed(evt);
             }
         }
     }// </editor-fold>//GEN-END:initComponents
@@ -237,7 +238,16 @@ public class ViewMalhaRodoviaria extends javax.swing.JFrame implements Interface
 
     private void botaoIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoIniciarActionPerformed
         this.changeEnableComponente(false);
-        this.controller.iniciaSimulacao();
+        
+        try {
+            int quantidadeCarro = Integer.parseInt(campoNumeroCarros.getText());
+            boolean usaSemaforo = opcaoSemaforo.isSelected();
+            boolean usaMonitor = opcaoMonitor.isSelected();
+
+            this.controller.iniciaSimulacao(quantidadeCarro, usaSemaforo, usaMonitor);    
+        } catch (Exception e) {
+            this.updateShowException(e);
+        }
     }//GEN-LAST:event_botaoIniciarActionPerformed
 
     private void itemMenuNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemMenuNovoActionPerformed

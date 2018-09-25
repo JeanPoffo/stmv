@@ -19,5 +19,5 @@ public interface InterfaceControllerObserved {
     
     public void carregaMatrizRodoviaria(File arquivoImportacao);
     
-    public void iniciaSimulacao();
+    public void iniciaSimulacao(int quantidadeCarro, boolean usaSemafaro, boolean usaMonitor);
 }

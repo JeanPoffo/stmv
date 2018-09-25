@@ -62,7 +62,7 @@ public class Carro extends Thread {
     public void start() {
         while(true) {
             try {
-                //this.mutex.acquire();
+                this.mutex.acquire();
                 
                 if(this.pista.isSaida()) {
                     this.pista.setCarro(null);
@@ -81,12 +81,14 @@ public class Carro extends Thread {
                 
                 ControllerMalhaRodoviaria.getInstancia().notifyTableModelChanged();
                 
-                sleep(1000);
+                Thread.sleep(1000);
+                
+                this.mutex.release();
             } 
             catch (InterruptedException ex) {} 
             catch (Throwable ex) {}
             finally {
-                //this.mutex.release();
+                this.mutex.release();
             }
         }
     }
